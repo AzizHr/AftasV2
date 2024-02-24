@@ -2,6 +2,7 @@ package com.example.reviewappv2.services.impl;
 
 import com.example.reviewappv2.dtos.request.UserNumAndRole;
 import com.example.reviewappv2.dtos.response.UserResponse;
+import com.example.reviewappv2.exceptions.AlreadyActivatedException;
 import com.example.reviewappv2.exceptions.NotFoundException;
 import com.example.reviewappv2.models.User;
 import com.example.reviewappv2.repositories.UserRepository;
@@ -20,27 +21,25 @@ public class ManagerServiceImpl implements ManagerService {
     private final ModelMapper modelMapper;
 
     @Override
-    public String activateUserAccount(int num) throws NotFoundException {
+    public UserResponse activateUserAccount(int num) throws NotFoundException, AlreadyActivatedException {
         if(userRepository.findByNum(num).isPresent()) {
             User user = userRepository.findByNum(num).get();
             if(user.isActivated()) {
-                return "Already activated!";
+                throw new AlreadyActivatedException("Already activated!");
             } else {
                 user.setActivated(true);
-                userRepository.save(user);
-                return "User activated with success!";
+                return modelMapper.map(userRepository.save(user), UserResponse.class);
             }
         }
         throw new NotFoundException("No user found");
     }
 
     @Override
-    public String changeUserRole(UserNumAndRole userNumAndRole) throws NotFoundException {
+    public UserResponse changeUserRole(UserNumAndRole userNumAndRole) throws NotFoundException {
         if(userRepository.findByNum(userNumAndRole.getUserNum()).isPresent()) {
             User user = userRepository.findByNum(userNumAndRole.getUserNum()).get();
             user.setRole(userNumAndRole.getRole());
-            userRepository.save(user);
-            return "User role changed to "+userNumAndRole.getRole();
+            return modelMapper.map(userRepository.save(user), UserResponse.class);
         }
         throw new NotFoundException("No user found");
     }
