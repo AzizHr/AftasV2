@@ -9,14 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.HashMap;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,7 +31,7 @@ public class ManagerController {
         return new ResponseEntity<>(managerService.changeUserRole(userNumAndRole), HttpStatus.OK);
     }
 
-    @PostMapping("/users")
+    @GetMapping("/users")
     @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<List<UserResponse>> users() {
         return new ResponseEntity<>(managerService.findAllUsers(), HttpStatus.OK);

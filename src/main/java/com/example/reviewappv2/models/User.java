@@ -23,10 +23,12 @@ public class User {
     private String familyName;
     private String username;
     private String password;
+    @Enumerated(EnumType.STRING)
     private Role role;
     private boolean isActivated;
     private LocalDate accessionDate;
     private String nationality;
+    @Enumerated(EnumType.STRING)
     private IdentityDocumentType identityDocument;
     private String identityNumber;
     @OneToMany(mappedBy = "member")
