@@ -1,8 +1,8 @@
 package com.example.reviewappv2.controllers;
 
+import com.example.reviewappv2.dtos.request.UserNum;
 import com.example.reviewappv2.dtos.request.UserNumAndRole;
 import com.example.reviewappv2.dtos.response.UserResponse;
-import com.example.reviewappv2.exceptions.AlreadyActivatedException;
 import com.example.reviewappv2.exceptions.NotFoundException;
 import com.example.reviewappv2.services.ManagerService;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +19,10 @@ public class ManagerController {
 
     private final ManagerService managerService;
 
-    @PostMapping("/activate-user-account")
+    @PostMapping("/toggle-user-account")
     @PreAuthorize("hasAuthority('MANAGER')")
-    public ResponseEntity<UserResponse> activateUserAccount(@RequestBody int userNum) throws NotFoundException, AlreadyActivatedException {
-        return new ResponseEntity<>(managerService.activateUserAccount(userNum), HttpStatus.OK);
+    public ResponseEntity<UserResponse> activateUserAccount(@RequestBody UserNum userNum) throws NotFoundException {
+        return new ResponseEntity<>(managerService.toggleUserAccount(userNum), HttpStatus.OK);
     }
 
     @PostMapping("/change-user-role")

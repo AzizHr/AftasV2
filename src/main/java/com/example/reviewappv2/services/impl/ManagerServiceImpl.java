@@ -1,8 +1,8 @@
 package com.example.reviewappv2.services.impl;
 
+import com.example.reviewappv2.dtos.request.UserNum;
 import com.example.reviewappv2.dtos.request.UserNumAndRole;
 import com.example.reviewappv2.dtos.response.UserResponse;
-import com.example.reviewappv2.exceptions.AlreadyActivatedException;
 import com.example.reviewappv2.exceptions.NotFoundException;
 import com.example.reviewappv2.models.User;
 import com.example.reviewappv2.repositories.UserRepository;
@@ -21,15 +21,11 @@ public class ManagerServiceImpl implements ManagerService {
     private final ModelMapper modelMapper;
 
     @Override
-    public UserResponse activateUserAccount(int num) throws NotFoundException, AlreadyActivatedException {
-        if(userRepository.findByNum(num).isPresent()) {
-            User user = userRepository.findByNum(num).get();
-            if(user.isActivated()) {
-                throw new AlreadyActivatedException("Already activated!");
-            } else {
-                user.setActivated(true);
-                return modelMapper.map(userRepository.save(user), UserResponse.class);
-            }
+    public UserResponse toggleUserAccount(UserNum userNum) throws NotFoundException {
+        if(userRepository.findByNum(userNum.getUserNum()).isPresent()) {
+            User user = userRepository.findByNum(userNum.getUserNum()).get();
+            user.setActivated(!user.isActivated());
+            return modelMapper.map(userRepository.save(user), UserResponse.class);
         }
         throw new NotFoundException("No user found");
     }
