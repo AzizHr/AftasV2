@@ -2,7 +2,6 @@ package com.example.reviewappv2.services.impl;
 
 import com.example.reviewappv2.dtos.request.LevelRequest;
 import com.example.reviewappv2.dtos.response.LevelResponse;
-import com.example.reviewappv2.exceptions.IllegalLevelCodeException;
 import com.example.reviewappv2.exceptions.IllegalLevelPointsException;
 import com.example.reviewappv2.exceptions.NotFoundException;
 import com.example.reviewappv2.models.Level;
@@ -22,20 +21,16 @@ public class LevelServiceImpl implements LevelService {
     private final ModelMapper modelMapper;
 
     @Override
-    public LevelResponse save(LevelRequest levelRequest) throws IllegalLevelCodeException, IllegalLevelPointsException {
+    public LevelResponse save(LevelRequest levelRequest) throws IllegalLevelPointsException {
 
         List<Level> levels = levelRepository.findAll();
         Level level = modelMapper.map(levelRequest, Level.class);
 
-        for (int i = 0; i < levels.size(); i++) {
-            if (levels.get(i).getCode() + 1 == levelRequest.getCode()) {
-                if (levelRequest.getPoints() <= levels.get(i).getPoints()) {
-                    throw new IllegalLevelPointsException("Points should be greater than " + levels.get(i).getPoints());
-                } else {
-                    levelRepository.save(level);
-                }
-            } else if (i == levels.size() - 1) {
-                throw new IllegalLevelCodeException("ID should be between " + levels.get(i).getCode() + " and " + (levels.get(i).getCode() + 2));
+        for (Level value : levels) {
+            if (levelRequest.getPoints() <= value.getPoints()) {
+                throw new IllegalLevelPointsException("Points should be greater than " + value.getPoints());
+            } else {
+                levelRepository.save(level);
             }
         }
 

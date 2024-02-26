@@ -2,6 +2,7 @@ package com.example.reviewappv2.services.impl;
 
 import com.example.reviewappv2.dtos.request.RankingRequest;
 import com.example.reviewappv2.dtos.response.RankingResponse;
+import com.example.reviewappv2.exceptions.AlreadyAMemberException;
 import com.example.reviewappv2.exceptions.NotFoundException;
 import com.example.reviewappv2.models.Ranking;
 import com.example.reviewappv2.repositories.CompetitionRepository;
@@ -11,7 +12,6 @@ import com.example.reviewappv2.services.RankingService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,17 +25,22 @@ public class RankingServiceImpl implements RankingService {
     private final ModelMapper modelMapper;
 
     @Override
-    public RankingResponse save(RankingRequest rankingRequest) throws NotFoundException {
-        Ranking ranking = modelMapper.map(rankingRequest, Ranking.class);
-        ranking.setCompetition(competitionRepository.findByCode(rankingRequest
-                .getCompetitionCode()).orElseThrow(() -> new NotFoundException("Competition not found")));
-        ranking.setMember(userRepository.findByNum(rankingRequest
-                .getMemberNum()).orElseThrow(() -> new NotFoundException("Member not found")));
+    public RankingResponse save(RankingRequest rankingRequest) throws NotFoundException, AlreadyAMemberException {
 
-        ranking.setRank(0);
-        ranking.setScore(0);
+        if(rankingRepository.findByCompetitionCodeAndMemberNum(rankingRequest.getCompetitionCode(), rankingRequest.getMemberNum()).isPresent()) {
+            throw new AlreadyAMemberException("Selected member already in this competition");
+        } else {
+            Ranking ranking = modelMapper.map(rankingRequest, Ranking.class);
+            ranking.setCompetition(competitionRepository.findByCode(rankingRequest
+                    .getCompetitionCode()).orElseThrow(() -> new NotFoundException("Competition not found")));
+            ranking.setMember(userRepository.findByNum(rankingRequest
+                    .getMemberNum()).orElseThrow(() -> new NotFoundException("Member not found")));
 
-        return modelMapper.map(rankingRepository.save(ranking), RankingResponse.class);
+            ranking.setRank(0);
+            ranking.setScore(0);
+
+            return modelMapper.map(rankingRepository.save(ranking), RankingResponse.class);
+        }
     }
 
     @Override
@@ -71,13 +76,23 @@ public class RankingServiceImpl implements RankingService {
 
     @Override
     public List<RankingResponse> findAll() {
-        return Collections.singletonList(modelMapper
-                .map(rankingRepository.findAll(), RankingResponse.class));
+        List<Ranking> rankings = rankingRepository.findAll();
+        return rankings.stream()
+                .map(ranking -> modelMapper.map(ranking, RankingResponse.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RankingResponse> findAllByCompetitionCode(String competitionCode) {
+        List<Ranking> rankings = rankingRepository.findAllByCompetitionCode(competitionCode);
+        return rankings.stream()
+                .map(ranking -> modelMapper.map(ranking, RankingResponse.class))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<RankingResponse> findTop3(String competitionCode) {
-        List<Ranking> rankings = rankingRepository.findTop3ByCompetitionCodeOrderByDateDesc(competitionCode);
+        List<Ranking> rankings = rankingRepository.findTop3ByCompetitionCodeOrderByScoreDesc(competitionCode);
         return rankings.stream()
                 .map(ranking -> modelMapper.map(ranking, RankingResponse.class))
                 .collect(Collectors.toList());

@@ -8,11 +8,6 @@ import java.util.Optional;
 
 public interface RankingRepository extends JpaRepository<Ranking, Integer> {
     Optional<Ranking> findByCompetitionCodeAndMemberNum(String competitionCode, int memberNum);
-    @Query("SELECT r " +
-            "FROM Ranking r " +
-            "JOIN r.member u " +
-            "JOIN r.competition c " +
-            "WHERE c.code = :competitionCode " +
-            "ORDER BY c.date DESC")
-    List<Ranking> findTop3ByCompetitionCodeOrderByDateDesc(String competitionCode);
+    List<Ranking> findTop3ByCompetitionCodeOrderByScoreDesc(String competitionCode);
+    List<Ranking> findAllByCompetitionCode(String competitionCode);
 }

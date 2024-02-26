@@ -1,8 +1,6 @@
 package com.example.reviewappv2.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +12,7 @@ import lombok.Setter;
 public class Hunting {
 
     @Id
+    @GeneratedValue
     private int id;
     private int numberOfFish;
     @ManyToOne

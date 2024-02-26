@@ -31,11 +31,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @ExceptionHandler(IllegalLevelCodeException.class)
-    public ResponseEntity<Map<String, String>> handleIllegalLevelCodeException(IllegalLevelCodeException e) {
-        return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.NOT_ACCEPTABLE);
-    }
-
     @ExceptionHandler(IllegalLevelPointsException.class)
     public ResponseEntity<Map<String, String>> handleIllegalLevelPointsException(IllegalLevelPointsException e) {
         return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.NOT_ACCEPTABLE);
@@ -43,6 +38,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotAMemberException.class)
     public ResponseEntity<Map<String, String>> handleNotAMemberException(NotAMemberException e) {
+        return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AlreadyAMemberException.class)
+    public ResponseEntity<Map<String, String>> handleAlreadyAMemberException(AlreadyAMemberException e) {
         return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 

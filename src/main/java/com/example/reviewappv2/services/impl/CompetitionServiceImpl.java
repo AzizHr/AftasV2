@@ -15,6 +15,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +35,12 @@ public class CompetitionServiceImpl implements CompetitionService {
         if(validationService.isCompetitionDateValid(competitionRequest.getDate())) {
             if(validationService.isCompetitionEndTimeValid(competitionRequest.getEndTime(), competitionRequest.getStartTime())) {
                 competition.setNumberOfParticipants(0);
-                return modelMapper.map(competitionRepository.save(competition), CompetitionResponse.class);
+                String generatedCode = generateCode(competitionRequest.getLocation(), competitionRequest.getDate());
+
+                if (isCodeValid(generatedCode)) {
+                    competition.setCode(generatedCode);
+                    return modelMapper.map(competitionRepository.save(competition), CompetitionResponse.class);
+                }
             }
             throw new IllegalCompetitionEndTimeException("EndTime should be greater than the StartTime");
         }
@@ -82,6 +90,17 @@ public class CompetitionServiceImpl implements CompetitionService {
                 pageCompetition.getPageable(),
                 pageCompetition.getTotalElements()
         );
+    }
+
+    public String generateCode(String location, LocalDate date) {
+        String formattedDate = date.format(DateTimeFormatter.ofPattern("dd-MM-yy"));
+        location = location.substring(0, Math.min(location.length(), 3)).toLowerCase();
+        return location + "-" + formattedDate;
+    }
+
+    public Boolean isCodeValid(String code) {
+        String pattern = "^[a-z]{3}-\\d{2}-\\d{2}-\\d{2}$";
+        return Pattern.matches(pattern, code);
     }
 
 }

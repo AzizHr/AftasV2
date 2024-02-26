@@ -2,7 +2,6 @@ package com.example.reviewappv2.controllers;
 
 import com.example.reviewappv2.dtos.request.LevelRequest;
 import com.example.reviewappv2.dtos.response.LevelResponse;
-import com.example.reviewappv2.exceptions.IllegalLevelCodeException;
 import com.example.reviewappv2.exceptions.IllegalLevelPointsException;
 import com.example.reviewappv2.exceptions.NotFoundException;
 import com.example.reviewappv2.services.LevelService;
@@ -24,7 +23,7 @@ public class LevelController {
     @PreAuthorize("hasAuthority('MANAGER')")
     public ResponseEntity<LevelResponse> save(
             @RequestBody LevelRequest levelRequest
-    ) throws IllegalLevelCodeException, IllegalLevelPointsException {
+    ) throws IllegalLevelPointsException {
         return new ResponseEntity<>(levelService.save(levelRequest), HttpStatus.OK);
     }
 

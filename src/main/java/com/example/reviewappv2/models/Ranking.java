@@ -15,6 +15,7 @@ import lombok.Setter;
 public class Ranking {
 
     @Id
+    @GeneratedValue
     private int id;
     @ManyToOne
     private Competition competition;

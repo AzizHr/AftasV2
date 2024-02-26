@@ -2,6 +2,7 @@ package com.example.reviewappv2.controllers;
 
 import com.example.reviewappv2.dtos.request.RankingRequest;
 import com.example.reviewappv2.dtos.response.RankingResponse;
+import com.example.reviewappv2.exceptions.AlreadyAMemberException;
 import com.example.reviewappv2.exceptions.NotFoundException;
 import com.example.reviewappv2.services.RankingService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class RankingController {
     @PreAuthorize("hasAnyAuthority('MANAGER', 'JURY')")
     public ResponseEntity<RankingResponse> save(
             @RequestBody RankingRequest rankingRequest
-    ) throws NotFoundException {
+    ) throws NotFoundException, AlreadyAMemberException {
         return new ResponseEntity<>(rankingService.save(rankingRequest), HttpStatus.OK);
     }
 
@@ -62,8 +63,16 @@ public class RankingController {
         return new ResponseEntity<>(rankingService.findAll(), HttpStatus.OK);
     }
 
+    @GetMapping("/by-competition/{code}")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'JURY')")
+    public ResponseEntity<?> rankingsByCompetitionCode(@PathVariable String code) {
+        if(rankingService.findAllByCompetitionCode(code).isEmpty()) {
+            return new ResponseEntity<>(Map.of("message", "No rankings found"), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(rankingService.findAllByCompetitionCode(code), HttpStatus.OK);
+    }
+
     @GetMapping("/podium/{competitionCode}")
-    @PreAuthorize("hasAuthority('MEMBER')")
     public ResponseEntity<List<RankingResponse>> podium(@PathVariable String competitionCode) {
         return new ResponseEntity<>(rankingService.findTop3(competitionCode), HttpStatus.OK);
     }
